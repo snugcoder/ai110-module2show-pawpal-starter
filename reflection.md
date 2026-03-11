@@ -4,9 +4,13 @@
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
+- Briefly describe your initial UML design. : The UML diagram was defined by the candidate classes: owner, pet, scheduler, tasks. The Owner owns a pet. The Pet has grooming tasks. The Scheduler 
 - What classes did you include, and what responsibilities did you assign to each?
-
+    Owner, Pet, Tasks, Scheduler
+- Three Core Actions
+    1. Scheduler must generate a plan for grooming tasks using the Owner's available schedule including any time constraints. 
+    2. The owner must be able to access grooming tasks given to their pet(s). 
+    3. 
 **b. Design changes**
 
 - Did your design change during implementation?
