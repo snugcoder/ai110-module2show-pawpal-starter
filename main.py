@@ -1,5 +1,8 @@
 from pawpal_system import Owner, Pet, Task, Scheduler
-
+# added filtering here
+def filter_tasks_by_completion(tasks, completed: bool = True):
+    """Return only tasks matching the completed flag."""
+    return [task for task in tasks if task.is_completed() == completed]
 
 if __name__ == "__main__":
     # Create an owner with time constraints
@@ -22,3 +25,15 @@ if __name__ == "__main__":
     owner_schedule = Scheduler(owner)
     owner_schedule.generate_plan(date="today")
     print(owner_schedule.get_plan_explanation())
+    
+    all_tasks = owner_schedule.get_all_tasks()  # or however you collect tasks
+    completed_tasks = filter_tasks_by_completion(all_tasks, completed=True)
+    incomplete_tasks = filter_tasks_by_completion(all_tasks, completed=False)
+
+    print("Completed tasks:")
+    for t in completed_tasks:
+        print("-", t.get_name())
+
+    print("Incomplete tasks:")
+    for t in incomplete_tasks:
+        print("-", t.get_name())

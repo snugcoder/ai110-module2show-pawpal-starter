@@ -1,4 +1,16 @@
+from math import e
 import streamlit as st
+from pawpal_system import Owner, Pet, Task, Scheduler
+
+# initializing pawpal objects
+if "owner" not in st.session_state:
+    st.session_state.owner = None
+if "pet" not in st.session_state:
+    st.session_state.pet = None
+if "scheduler" not in st.session_state:
+    st.session_state.scheduler = None
+if "tasks" not in st.session_state:
+    st.session_state.tasks = []
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -40,8 +52,17 @@ st.divider()
 
 st.subheader("Quick Demo Inputs (UI only)")
 owner_name = st.text_input("Owner name", value="Jordan")
+owner_email = st.text_input("Owner Email: ", value="jordan@email.com")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
+hours = st.number_input("Hours available today", value = 4.0)
+
+if st.button("Save owner"):
+    st.session_state.owner = Owner(name=owner_name, email=owner_email, time_available=hours)
+    st.session_state.pet = Pet(name=pet_name, species=species, breed="Unknown", age=0, )
+    st.session_state.owner.add_pet(st.session_state.pet)
+    st.session_state.tasks = []
+    st.success(f"Owner saved! Pet '{pet_name}' added.")
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
@@ -49,18 +70,34 @@ st.caption("Add a few tasks. In your final version, these should feed into your 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     task_title = st.text_input("Task title", value="Morning walk")
 with col2:
     duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
 with col3:
     priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
+with col4:
+    category = st.selectbox("Category", ["feeding", "exercise", "grooming", "medication", "other"])
 
+priority_map = {"low":1, "medium":2, "high": 3}
 if st.button("Add task"):
-    st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
-    )
+    if st.session_state.pet is None:
+        st.warning("Save an owner and pet first")
+    else:
+        task = Task(
+            name=task_title, 
+            duration=duration/60.0, 
+            priority=priority_map[priority], 
+            category=category,
+        )
+        st.session_state.pet.add_task(task)
+        st.session_state.tasks.append({
+                 "title": task_title,
+                 "duration (min)": int(duration),
+                 "priority": priority,
+                 "category": category,
+             })
 
 if st.session_state.tasks:
     st.write("Current tasks:")
@@ -74,15 +111,27 @@ st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    if st.session_state.owner is None:
+        st.warning("Please create an owner first.")
+    elif not st.session_state.tasks:
+        st.warning("Save at least one task before generating a schedule")
+    else:
+        scheduler = Scheduler(st.session_state.owner)
+        scheduled_tasks = scheduler.generate_plan(date="today")
+        st.session_state.scheduler = scheduler
+    st.markdown("### Schedule Explanation")
+    st.text(scheduler.get_plan_explanation())
+    
+    if scheduled_tasks:
+        st.markdown("### Scheduled Tasks")
+        st.table([
+            {
+                "task": t.get_name(),
+                "duration (hrs)": round(t.get_duration(), 2),
+                "priority": t.get_priority(),
+                "category": t.get_category(),
+            }
+            for t in scheduled_tasks
+        ])
+    else:
+        st.info("No tasks fit within the available time. Try increasing hours or reducing durations.")

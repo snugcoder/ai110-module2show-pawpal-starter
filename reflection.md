@@ -10,7 +10,7 @@
 - Three Core Actions
     1. Scheduler must generate a plan for grooming tasks using the Owner's available schedule including any time constraints. 
     2. The owner must be able to access grooming tasks given to their pet(s). 
-    3. 
+    3. Must be able to check off tasks in the schedule
 **b. Design changes**
 
 - Did your design change during implementation?

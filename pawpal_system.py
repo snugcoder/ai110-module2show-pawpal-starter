@@ -4,7 +4,7 @@ from typing import List
 class Owner:
     """Represents a pet owner with time constraints and multiple pets."""
     
-    def __init__(self, name: str, email: str, time_available: float):
+    def __init__(self, name: str, email: str, time_available: float, start_time: str, end_time:str ):
         self._name = name
         self._email = email
         self._time_available = time_available
@@ -99,6 +99,8 @@ class Task:
         self._description = description
         self._completed = False
         
+        
+        
     def get_name(self) -> str:
         """Returns the task's name."""
         return self._name
@@ -152,8 +154,12 @@ class Scheduler:
         all_tasks = self.get_all_tasks()
         time_available = self._owner.get_time_available()
         
-        # Sort tasks by priority (higher priority first)
-        sorted_tasks = sorted(all_tasks, key=lambda task: task.get_priority(), reverse=True)
+        # # Sort tasks by priority (higher priority first)
+        # sorted_tasks = sorted(all_tasks, key=lambda task: task.get_priority(), reverse=True)
+        
+         # Sort tasks by duration (shortest first)
+        sorted_tasks = sorted(all_tasks, key=lambda task: task.get_duration())
+    
         
         # Greedily add tasks until time runs out
         self._daily_plan = []
@@ -210,5 +216,3 @@ class Scheduler:
         explanation += f"Remaining time: {self._owner.get_time_available() - total_time} hours"
         
         return explanation
-    
-    
